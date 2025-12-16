@@ -75,6 +75,12 @@ public extension Document {
         try! self.init(.document(parsedRange: parsedRange, rawChildren))
     }
 
+    init(_ children: some Sequence<Markup>, inheritSourceRange: Bool) {
+        let rawChildren = children.map { $0.raw.markup }
+        let parsedRange = inheritSourceRange ? rawChildren.parsedRange : nil
+        try! self.init(.document(parsedRange: parsedRange, rawChildren))
+    }
+
     // MARK: Visitation
 
     func accept<V: MarkupVisitor>(_ visitor: inout V) -> V.Result {
