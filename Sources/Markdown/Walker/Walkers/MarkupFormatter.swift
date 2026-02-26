@@ -732,10 +732,10 @@ public struct MarkupFormatter: MarkupWalker {
             }
         } ?? ""
 
-        if listItem.parent is UnorderedList {
+        if let parentList = listItem.parent as? UnorderedList {
             let marker: String
             if formattingOptions.useUnorderedListMarkersFromSource {
-                marker = (listItem.parent as? UnorderedList)?.listMarker?.rawValue ?? formattingOptions.unorderedListMarker.rawValue
+                marker = parentList.listMarker?.rawValue ?? formattingOptions.unorderedListMarker.rawValue
             } else {
                 marker = formattingOptions.unorderedListMarker.rawValue
             }
