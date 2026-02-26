@@ -327,14 +327,7 @@ struct MarkupParser {
         let childConversion = convertChildren(state)
         precondition(childConversion.state.node == state.node)
         precondition(childConversion.state.event == CMARK_EVENT_EXIT)
-        return MarkupConversion(
-            state: childConversion.state.next(),
-            result: .listItem(
-                checkbox: .none,
-                parsedRange: parsedRange,
-                childConversion.result
-            )
-        )
+        return MarkupConversion(state: childConversion.state.next(), result: .listItem(checkbox: .none, parsedRange: parsedRange, childConversion.result))
     }
 
     private static func convertCodeBlock(_ state: MarkupConverterState) -> MarkupConversion<RawMarkup> {
@@ -521,14 +514,7 @@ struct MarkupParser {
         let checkbox: Checkbox = cmark_gfm_extensions_get_tasklist_item_checked(state.node) ? .checked : .unchecked
         precondition(childConversion.state.node == state.node)
         precondition(childConversion.state.event == CMARK_EVENT_EXIT)
-        return MarkupConversion(
-            state: childConversion.state.next(),
-            result: .listItem(
-                checkbox: checkbox,
-                parsedRange: parsedRange,
-                childConversion.result
-            )
-        )
+        return MarkupConversion(state: childConversion.state.next(), result: .listItem(checkbox: checkbox, parsedRange: parsedRange, childConversion.result))
     }
 
     private static func convertTable(_ state: MarkupConverterState) -> MarkupConversion<RawMarkup> {
