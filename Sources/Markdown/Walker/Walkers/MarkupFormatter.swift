@@ -243,6 +243,7 @@ public struct MarkupFormatter: MarkupWalker {
 
         var orderedListNumerals: OrderedListNumerals
         var unorderedListMarker: UnorderedListMarker
+        var useUnorderedListMarkersFromSource: Bool
         var useCodeFence: UseCodeFence
         var defaultCodeBlockLanguage: String?
         var thematicBreakCharacter: ThematicBreakCharacter
@@ -259,6 +260,7 @@ public struct MarkupFormatter: MarkupWalker {
 
          - Parameters:
             - unorderedListMarker: The character to use for unordered list markers.
+            - useUnorderedListMarkersFromSource: When `true`, use an unordered list's parsed marker if available, otherwise fall back to `unorderedListMarker`.
             - orderedListNumerals: The counting behavior and start numeral for ordered list markers.
             - useCodeFence: Decides when to use code fences on code blocks
             - defaultCodeBlockLanguage: The default language string to use when code blocks don't have a language and will be printed as fenced code blocks.
@@ -272,6 +274,7 @@ public struct MarkupFormatter: MarkupWalker {
             - doxygenCommandPrefix: The command command prefix, which defaults to ``DoxygenCommandPrefix/backslash``.
          */
         public init(unorderedListMarker: UnorderedListMarker = .dash,
+                    useUnorderedListMarkersFromSource: Bool = false,
                     orderedListNumerals: OrderedListNumerals = .allSame(1),
                     useCodeFence: UseCodeFence = .always,
                     defaultCodeBlockLanguage: String? = nil,
@@ -284,6 +287,7 @@ public struct MarkupFormatter: MarkupWalker {
                     customLinePrefix: String = "",
                     doxygenCommandPrefix: DoxygenCommandPrefix = .backslash) {
             self.unorderedListMarker = unorderedListMarker
+            self.useUnorderedListMarkersFromSource = useUnorderedListMarkersFromSource
             self.orderedListNumerals = orderedListNumerals
             self.useCodeFence = useCodeFence
             self.defaultCodeBlockLanguage = defaultCodeBlockLanguage
@@ -729,7 +733,13 @@ public struct MarkupFormatter: MarkupWalker {
         } ?? ""
 
         if listItem.parent is UnorderedList {
-            print("\(formattingOptions.unorderedListMarker.rawValue) \(checkbox)", for: listItem)
+            let marker: String
+            if formattingOptions.useUnorderedListMarkersFromSource {
+                marker = (listItem.parent as? UnorderedList)?.listMarker?.rawValue ?? formattingOptions.unorderedListMarker.rawValue
+            } else {
+                marker = formattingOptions.unorderedListMarker.rawValue
+            }
+            print("\(marker) \(checkbox)", for: listItem)
         } else if let numeralPrefix = numeralPrefix(for: listItem) {
             print("\(numeralPrefix)\(checkbox)", for: listItem)
         }

@@ -8,6 +8,18 @@
  See https://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
+/// The marker used for an unordered list.
+public enum UnorderedListMarker: String {
+    /// A dash character (`-`).
+    case dash = "-"
+
+    /// A plus character (`+`).
+    case plus = "+"
+
+    /// A star/asterisk character (`*`).
+    case star = "*"
+}
+
 /// An unordered list.
 public struct UnorderedList: ListItemContainer {
     public var _data: _MarkupData
@@ -30,7 +42,25 @@ public extension UnorderedList {
     // MARK: ListItemContainer
 
     init<Items: Sequence>(_ items: Items) where Items.Element == ListItem {
-        try! self.init(.unorderedList(parsedRange: nil, items.map { $0.raw.markup }))
+        self.init(items, marker: nil)
+    }
+
+    /// Create an unordered list with the given marker and list items.
+    init<Items: Sequence>(_ items: Items, marker: UnorderedListMarker? = nil) where Items.Element == ListItem {
+        try! self.init(.unorderedList(parsedRange: nil, items.map { $0.raw.markup }, marker: marker))
+    }
+
+    /// The marker used for this unordered list, if known.
+    var listMarker: UnorderedListMarker? {
+        get {
+            guard case let .unorderedList(marker) = _data.raw.markup.data else {
+                fatalError("\(self) markup wrapped unexpected \(_data.raw)")
+            }
+            return marker
+        }
+        set {
+            _data = _data.replacingSelf(.unorderedList(parsedRange: nil, _data.raw.markup.copyChildren(), marker: newValue))
+        }
     }
 
     // MARK: Visitation

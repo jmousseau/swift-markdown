@@ -53,7 +53,7 @@ final class RawMarkupToMarkupTests: XCTestCase {
     }
 
     func testUnorderedList() {
-        XCTAssertNoThrow(try UnorderedList(.unorderedList(parsedRange: nil, [])))
+        XCTAssertNoThrow(try UnorderedList(.unorderedList(parsedRange: nil, [], marker: nil)))
         XCTAssertThrowsError(try UnorderedList(.softBreak(parsedRange: nil)))
     }
 
