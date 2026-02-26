@@ -109,6 +109,12 @@ class MarkupFormatterSingleElementTests: XCTestCase {
             let printed = UnorderedList(ListItem(Paragraph(Text("A list item.")))).format()
             XCTAssertEqual(expected, printed)
         }
+        do { // explicit marker
+            let expected = "+ A list item."
+            let list = UnorderedList([ListItem(Paragraph(Text("A list item.")))], marker: .plus)
+            let printed = list.format(options: .init(useUnorderedListMarkersFromSource: true))
+            XCTAssertEqual(expected, printed)
+        }
         do { // unchecked
             let expected = "- [ ] A list item."
             let printed = UnorderedList(ListItem(checkbox: .unchecked,
@@ -425,6 +431,18 @@ class MarkupFormatterOptionsTests: XCTestCase {
         }
     }
 
+    func testUnorderedListMarkerFromSource() {
+        let original = Document(parsing: "* A")
+        let printed = original.format(options: .init(unorderedListMarker: .plus, useUnorderedListMarkersFromSource: true))
+        XCTAssertEqual("* A", printed)
+    }
+
+    func testUnorderedListMarkerFallsBackToFormattingOptionWithoutSourceMarker() {
+        let original = Document(UnorderedList(ListItem(Paragraph(Text("A")))))
+        let printed = original.format(options: .init(unorderedListMarker: .plus, useUnorderedListMarkersFromSource: true))
+        XCTAssertEqual("+ A", printed)
+    }
+
     func testUseCodeFence() {
         let fenced = """
         ```swift
@@ -699,6 +717,18 @@ class MarkupFormatterSimpleRoundTripTests: XCTestCase {
             """
         checkRoundTrip(for: source)
         checkCharacterEquivalence(for: source)
+    }
+
+    func testRoundTripUnorderedListMixedMarkers() {
+        let source = """
+            * A
+            + B
+            - C
+            """
+        let original = Document(parsing: source)
+        let printed = original.format(options: .init(useUnorderedListMarkersFromSource: true))
+        let reparsed = Document(parsing: printed)
+        XCTAssertTrue(original.hasSameStructure(as: reparsed))
     }
 
     func testRoundTripUnorderedListInUnorderedList() {
